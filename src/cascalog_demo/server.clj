@@ -7,15 +7,16 @@
 
 (bootstrap)
 (def broadcast (channel* :transactional? true))
-(def data (atom []))
-(add-watch data
+
+(def query-data (atom (run-query-file "src/cascalog_demo/query.clj")))
+(add-watch query-data
            :d3
            (fn [_ _ _ new-value]
              (enqueue broadcast (pr-str new-value))))
 
 (defn inbound-handler
   [msg]
-  (reset! data (run-query-file "src/cascalog_demo/query.clj")))
+  (reset! query-data (run-query-file "src/cascalog_demo/query.clj")))
 
 (def websocket-handler
   (fn [request-channel connection-details]
@@ -47,10 +48,3 @@
 (defn -main
   [& args]
   (start-server))
-(start-server)
-;(stop-server)
-(reset! data (run-query-file "src/cascalog_demo/query.clj"))
-(reset! data '((["time" 45]
-                ["what" 90]
-                ["thing" 10])))
-

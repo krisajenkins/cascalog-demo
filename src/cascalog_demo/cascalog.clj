@@ -28,15 +28,4 @@
       slurp
       read-string
       eval
-      ??-
-      ))
-
-(run-query-file "src/cascalog_demo/query.clj")
-
-;(?<- (stdout)
-;     [?sum ?avg ?gender]
-;     (people ?person)
-;     ((c/juxt #'age-of
-;              #'gender-of) ?person :> ?age ?gender)
-;     (c/sum ?age :> ?sum)
-;     (c/avg ?age :> ?avg))
+      ??-))

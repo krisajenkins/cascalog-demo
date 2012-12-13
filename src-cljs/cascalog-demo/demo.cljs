@@ -80,36 +80,45 @@
   (take 5 (cons (rand-int 50)
                 numbers)))
 
-(def my-series (atom []))
-(add-watch my-series :d3 (fn [_ _ _ new-value]
-                           (show-numbers new-value)))
-
-(js/setInterval #(swap! my-series shift_in_a_number)
-                1000)
-
-(def query-data (atom nil))
-(add-watch query-data
-           :d3
-           (fn [_ _ _ new-value]
-             (show-people new-value)))
-
 (defn read-websocket-datagram
   [datagram]
+  (print datagram)
   (->> datagram
        .-data
-       read-string
-       first
-       (reset! query-data)))
+       read-string))
 
-(defn make-websocket
-  [url & {:as bindings}]
-  (let [socket (js/WebSocket. url)]
-    (doseq [[k v] bindings]
-      (aset socket (name k) v))
-    socket))
+(defn show-number-series
+  []
+  (let [my-series (atom [])]
+    (dotimes [_ 5]
+      (swap! my-series shift-in-a-number))
+    (add-watch my-series :d3 (fn [_ _ _ new-value]
+                               (show-numbers new-value)))
+    (js/setInterval #(swap! my-series shift-in-a-number) 1000)))
 
-(def socket (make-websocket "ws://localhost:8060"
-                            :onopen #(print "OPEN")
-                            :onclose #(print "CLOSE")
-                            :onerror #((print "ERROR") (print %))
-                            :onmessage read-websocket-datagram))
+(defn show-websocket-data
+  []
+  (let [query-data (atom [])
+        socket (js/WebSocket. "ws://localhost:8060")]
+    (aset socket "onopen" (fn [event]
+                            (print "OPEN" event)
+                            (.send socket "ANYTHING")))
+    (aset socket "onclose" (fn [event]
+                             (print "CLOSE" event)))
+    (aset socket "onerror" (fn [event]
+                             (print "CLOSE" event)))
+    (aset socket "onmessage" (fn [datagram]
+                               (->> (read-websocket-datagram datagram)
+                                    first
+                                    (swap! query-data))))
+    (add-watch query-data
+               :d3
+               (fn [_ _ _ new-value]
+                 (show-people new-value)))))
+
+(defn main-
+  []
+  (show-number-series)
+  (show-websocket-data))
+
+(set! *lein-clj-fn* main-)

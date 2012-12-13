@@ -11,7 +11,8 @@
                  [aleph "0.3.0-beta8"]]
   :profiles {:dev {:dependencies [[org.apache.hadoop/hadoop-core "0.20.2-dev"
                                    :exclusions [commons-codec/commons-codec]]]}}
-  :aliases {"cljs" ["trampoline" "cljsbuild" "auto"]
+  :aliases {"server" ["run" "-m" "cascalog-demo.server"]
+            "cljs" ["trampoline" "cljsbuild" "auto"]
             "cljs-repl" ["trampoline" "cljsbuild" "repl-listen"]}
   :cljsbuild {:crossovers []
               :crossover-jar true
